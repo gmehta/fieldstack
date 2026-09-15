@@ -1,0 +1,12 @@
+# Generated synthetic database (regenerate with data-model/build_rubrik_gtm_db_v5.py)
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store

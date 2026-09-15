@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fieldstack</title>
+<style>
+  :root{
+    --bg:#F5F6F8;
+    --surface:#FFFFFF;
+    --surface-raised:#FFFFFF;
+    --border:#DFE3E8;
+    --border-soft:#EBEEF1;
+    --ink:#1A2230;
+    --ink-muted:#5B6472;
+    --ink-faint:#8A93A1;
+    --accent:#0F7A6E;
+    --accent-ink:#075048;
+    --accent-soft:#E3F3F0;
+    --accent-soft-border:#BFE3DC;
+    --good:#1E8E5A; --good-soft:#E5F5EC;
+    --warn:#B45309; --warn-soft:#FDF1E2;
+    --crit:#C0392B; --crit-soft:#FBE9E7;
+    --neutral-soft:#EEF0F3;
+    --shadow:0 1px 2px rgba(20,26,36,0.04), 0 8px 24px -12px rgba(20,26,36,0.12);
+    --font-head:'Libre Franklin',system-ui,sans-serif;
+    --font-body:'IBM Plex Sans',system-ui,sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#12161D;
+      --surface:#1A2029;
+      --surface-raised:#1F2631;
+      --border:#2C3542;
+      --border-soft:#242C37;
+      --ink:#EAEDF2;
+      --ink-muted:#A6AFBD;
+      --ink-faint:#727C8C;
+      --accent:#3FD8C4;
+      --accent-ink:#B7F3E9;
+      --accent-soft:#173330;
+      --accent-soft-border:#25534B;
+      --good:#4ADE94; --good-soft:#123424;
+      --warn:#F2B25C; --warn-soft:#3A2A12;
+      --crit:#F2897B; --crit-soft:#3A1D1A;
+      --neutral-soft:#242C37;
+      --shadow:0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#12161D;
+    --surface:#1A2029;
+    --surface-raised:#1F2631;
+    --border:#2C3542;
+    --border-soft:#242C37;
+    --ink:#EAEDF2;
+    --ink-muted:#A6AFBD;
+    --ink-faint:#727C8C;
+    --accent:#3FD8C4;
+    --accent-ink:#B7F3E9;
+    --accent-soft:#173330;
+    --accent-soft-border:#25534B;
+    --good:#4ADE94; --good-soft:#123424;
+    --warn:#F2B25C; --warn-soft:#3A2A12;
+    --crit:#F2897B; --crit-soft:#3A1D1A;
+    --neutral-soft:#242C37;
+    --shadow:0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:14px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-family:var(--font-head);color:var(--ink);margin:0;text-wrap:balance;}
+  .mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums;}
+  ::selection{background:var(--accent-soft);}
+  button{font-family:inherit;}
+  a{color:var(--accent-ink);}
+
+  /* ---------- Login screen ---------- */
+  .login-wrap{
+    min-height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:40px 16px;
+  }
+  .login-card{
+    width:100%;
+    max-width:880px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    display:grid;
+    grid-template-columns:1.05fr 1fr;
+  }
+  @media (max-width:700px){ .login-card{ grid-template-columns:1fr; } .login-roster{ order:2; } }
+  .login-brand{
+    padding:36px 32px;
+    background:linear-gradient(165deg,var(--accent-soft),var(--surface) 70%);
+    border-right:1px solid var(--border-soft);
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+  }
+  @media (max-width:700px){ .login-brand{ border-right:none; border-bottom:1px solid var(--border-soft);} }
+  .wordmark{display:flex;align-items:center;gap:10px;}
+  .wordmark .mark{
+    width:30px;height:30px;border-radius:8px;
+    background:var(--accent);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--surface);font-family:var(--font-head);font-weight:700;font-size:15px;
+    flex:none;
+  }
+  .wordmark .name{font-family:var(--font-head);font-weight:700;font-size:19px;letter-spacing:-0.01em;}
+  .login-brand p.lede{color:var(--ink-muted);font-size:13.5px;max-width:34ch;margin:0;}
+  .login-tag{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--accent-ink);
+    background:var(--accent-soft);
+    border:1px solid var(--accent-soft-border);
+    padding:4px 9px;
+    border-radius:999px;
+    width:fit-content;
+  }
+  .stage-strip{display:flex;flex-direction:column;gap:8px;margin-top:auto;}
+  .stage-strip .row{display:flex;align-items:baseline;gap:8px;font-size:12.5px;color:var(--ink-muted);}
+  .stage-strip .dot{width:6px;height:6px;border-radius:50%;background:var(--ink-faint);flex:none;}
+  .stage-strip .row b{color:var(--ink);font-weight:600;}
+
+  .login-form-side{padding:32px;display:flex;flex-direction:column;gap:16px;}
+  .login-form-side h2{font-size:18px;}
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field label{font-size:12px;font-weight:600;color:var(--ink-muted);}
+  .field input, .field select{
+    font-family:var(--font-mono);
+    font-size:14px;
+    padding:10px 12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:var(--bg);
+    color:var(--ink);
+  }
+  .field input:focus, .field select:focus, button:focus-visible, .nav-item:focus-visible, .role-chip:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:1px;
+  }
+  .btn{
+    appearance:none;border:none;cursor:pointer;
+    font-family:var(--font-head);font-weight:600;font-size:14px;
+    padding:10px 16px;border-radius:8px;
+    background:var(--accent);color:var(--surface);
+    transition:filter .12s ease;
+  }
+  .btn:hover{filter:brightness(1.06);}
+  .btn-ghost{
+    background:transparent;color:var(--ink);border:1px solid var(--border);
+  }
+  .hint{font-size:12px;color:var(--ink-faint);}
+  .error-msg{
+    font-size:12.5px;color:var(--crit);background:var(--crit-soft);
+    border:1px solid color-mix(in srgb, var(--crit) 35%, transparent);
+    padding:8px 10px;border-radius:8px;display:none;
+  }
+  .error-msg.show{display:block;}
+
+  .login-roster{
+    padding:32px;
+    background:var(--surface-raised);
+    border-top:1px solid var(--border-soft);
+  }
+  @media (min-width:701px){ .login-roster{ border-top:none; } }
+  .login-roster h3{font-size:12px;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-muted);margin-bottom:12px;}
+  .roster-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  @media (max-width:480px){ .roster-grid{grid-template-columns:1fr;} }
+  .role-chip{
+    text-align:left;
+    display:flex;align-items:center;gap:9px;
+    padding:8px 10px;border-radius:9px;
+    border:1px solid var(--border);
+    background:var(--surface);
+    cursor:pointer;font-size:12.5px;
+  }
+  .role-chip:hover{border-color:var(--accent-soft-border);background:var(--accent-soft);}
+  .role-chip .dot{width:9px;height:9px;border-radius:3px;flex:none;}
+  .role-chip .u{color:var(--ink-faint);font-family:var(--font-mono);font-size:11px;}
+  .roster-pass{margin-top:12px;font-size:12px;color:var(--ink-faint);}
+  .roster-pass code{font-family:var(--font-mono);background:var(--neutral-soft);padding:1px 6px;border-radius:5px;color:var(--ink);}
+
+  /* ---------- App shell ---------- */
+  .app{display:none;min-height:100%;grid-template-rows:auto 1fr;}
+  .app.show{display:grid;}
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:16px;padding:12px 20px;
+    background:var(--surface);border-bottom:1px solid var(--border);
+    position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  }
+  .topbar .whoami{display:flex;align-items:center;gap:10px;}
+  .avatar{
+    width:32px;height:32px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-head);font-weight:700;font-size:12.5px;color:var(--surface);
+    flex:none;
+  }
+  .whoami .who-text .name{font-weight:600;font-size:13.5px;}
+  .whoami .who-text .title{font-size:11.5px;color:var(--ink-muted);}
+  .topbar-actions{display:flex;align-items:center;gap:10px;}
+  .surface-chip{
+    font-family:var(--font-mono);font-size:11px;color:var(--ink-muted);
+    border:1px solid var(--border);padding:4px 9px;border-radius:999px;
+    display:none;
+  }
+  @media (min-width:720px){ .surface-chip{display:inline-block;} }
+
+  .shell{display:grid;grid-template-columns:220px 1fr;min-height:0;}
+  @media (max-width:760px){ .shell{grid-template-columns:1fr;} .rail{border-right:none;border-bottom:1px solid var(--border);} }
+  .rail{
+    border-right:1px solid var(--border);
+    background:var(--surface);
+    padding:16px 12px;
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .rail .rail-label{font-size:10.5px;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-faint);padding:6px 10px 8px;}
+  .nav-item{
+    display:flex;align-items:center;gap:9px;
+    padding:9px 10px;border-radius:8px;
+    color:var(--ink-muted);font-size:13px;font-weight:500;
+    cursor:pointer;border:1px solid transparent;background:none;text-align:left;width:100%;
+  }
+  .nav-item svg{flex:none;opacity:0.75;}
+  .nav-item:hover{background:var(--neutral-soft);color:var(--ink);}
+  .nav-item.active{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent-soft-border);font-weight:600;}
+
+  main.content{padding:22px;overflow-x:hidden;}
+  .content-head{margin-bottom:18px;display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 14px;}
+  .content-head h1{font-size:21px;}
+  .content-head .sub{color:var(--ink-muted);font-size:13px;}
+
+  .grid{display:grid;gap:16px;grid-template-columns:repeat(12,1fr);}
+  .card{
+    background:var(--surface);border:1px solid var(--border);border-radius:12px;
+    box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;
+    grid-column:span 12;min-width:0;
+  }
+  .card.span-7{grid-column:span 12;} .card.span-5{grid-column:span 12;}
+  @media (min-width:900px){ .card.span-7{grid-column:span 7;} .card.span-5{grid-column:span 5;} .card.span-6{grid-column:span 6;} .card.span-4{grid-column:span 4;} }
+  .card-head{
+    padding:14px 16px;border-bottom:1px solid var(--border-soft);
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+  }
+  .card-head h2{font-size:14.5px;}
+  .card-head .meta{font-size:11.5px;color:var(--ink-faint);}
+  .card-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px;}
+  .card-body.pad-0{padding:0;}
+
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;background:var(--border-soft);}
+  .tile{background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:4px;}
+  .tile .v{font-family:var(--font-mono);font-size:22px;font-weight:600;}
+  .tile .l{font-size:11.5px;color:var(--ink-muted);}
+
+  table{width:100%;border-collapse:collapse;font-size:12.8px;}
+  th{
+    text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:0.04em;
+    color:var(--ink-faint);font-weight:600;padding:0 12px 8px;border-bottom:1px solid var(--border-soft);
+  }
+  td{padding:9px 12px;border-bottom:1px solid var(--border-soft);vertical-align:middle;color:var(--ink);}
+  tr:last-child td{border-bottom:none;}
+  .table-wrap{overflow-x:auto;}
+  td .sub{display:block;color:var(--ink-faint);font-size:11px;margin-top:1px;}
+
+  .pill{
+    display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;
+    padding:3px 9px;border-radius:999px;white-space:nowrap;
+  }
+  .pill-good{background:var(--good-soft);color:var(--good);}
+  .pill-warn{background:var(--warn-soft);color:var(--warn);}
+  .pill-crit{background:var(--crit-soft);color:var(--crit);}
+  .pill-accent{background:var(--accent-soft);color:var(--accent-ink);}
+  .pill-neutral{background:var(--neutral-soft);color:var(--ink-muted);}
+
+  .bar-row{display:grid;grid-template-columns:120px 1fr 56px;align-items:center;gap:10px;font-size:12.5px;}
+  .bar-track{height:8px;border-radius:5px;background:var(--neutral-soft);overflow:hidden;}
+  .bar-fill{height:100%;border-radius:5px;background:var(--accent);}
+  .bar-fill.warn{background:var(--warn);} .bar-fill.crit{background:var(--crit);} .bar-fill.good{background:var(--good);}
+  .bar-row .val{font-family:var(--font-mono);text-align:right;color:var(--ink-muted);}
+
+  .checklist{display:flex;flex-direction:column;gap:9px;}
+  .check-item{display:flex;gap:9px;align-items:flex-start;font-size:12.8px;}
+  .check-item .box{
+    width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border);flex:none;margin-top:1px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .check-item.done .box{background:var(--good);border-color:var(--good);color:var(--surface);font-size:11px;}
+  .check-item .txt .meta{display:block;color:var(--ink-faint);font-size:11px;margin-top:1px;}
+  .check-item.done .txt .label{color:var(--ink-muted);text-decoration:line-through;text-decoration-color:var(--border);}
+
+  /* ---------- Slack-style deal room mock (AE surface) ---------- */
+  .slackapp{
+    display:grid;grid-template-columns:200px 1fr;
+    border:1px solid var(--border);border-radius:10px;overflow:hidden;height:420px;
+  }
+  @media (max-width:700px){ .slackapp{grid-template-columns:1fr;height:auto;} .slack-side{display:none;} .slack-thread{max-height:320px;} }
+  .slack-side{background:#1C1F2B;color:#C7CBDB;padding:14px 10px;display:flex;flex-direction:column;gap:2px;font-size:12.5px;overflow-y:auto;}
+  .slack-side .ws-name{color:#fff;font-family:var(--font-head);font-weight:700;font-size:13.5px;padding:2px 8px 12px;display:flex;align-items:center;gap:6px;}
+  .slack-side .sec{font-size:10.5px;text-transform:uppercase;letter-spacing:0.05em;color:#7D8299;padding:10px 8px 4px;}
+  .slack-chan{padding:6px 8px;border-radius:6px;display:flex;align-items:center;gap:7px;color:#C7CBDB;}
+  .slack-chan.active{background:#333A52;color:#fff;font-weight:600;}
+  .slack-chan .hash{opacity:0.65;}
+  .slack-chan .status-dot{width:7px;height:7px;border-radius:50%;background:#3ECF8E;flex:none;}
+  .slack-main{background:#fff;display:flex;flex-direction:column;min-width:0;}
+  .slack-chan-head{
+    padding:11px 16px;border-bottom:1px solid #E7E9EE;display:flex;align-items:center;gap:8px;flex:none;
+    font-weight:700;font-family:var(--font-head);font-size:13.5px;color:#1A1D29;
+  }
+  .slack-chan-head .members{margin-left:auto;font-weight:400;font-size:11.5px;color:#6B7280;}
+  .slack-thread{flex:1;overflow-y:auto;padding:14px 16px;background:#fff;}
+  .slack-thread .thread{gap:12px;}
+  .slack-thread .msg .bubble{background:#F4F5F7;color:#1A1D29;}
+  .slack-thread .msg .bubble .who{color:#1A1D29;}
+  .slack-thread .msg .bubble .who .t{color:#9AA0AE;}
+  .slack-compose{
+    margin:0 14px 14px;border:1px solid #D8DAE2;border-radius:8px;padding:9px 10px;
+    color:#8A8F9C;font-size:12.5px;display:flex;align-items:center;justify-content:space-between;flex:none;
+  }
+  .slack-compose .send{color:#fff;background:var(--accent);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;font-family:var(--font-head);}
+  .overlay-note{
+    display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-muted);
+    background:var(--accent-soft);border:1px solid var(--accent-soft-border);
+    padding:7px 11px;border-radius:8px;
+  }
+  .overlay-note b{color:var(--accent-ink);font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.04em;}
+
+  .thread{display:flex;flex-direction:column;gap:12px;}
+  .msg{display:flex;gap:9px;}
+  .msg .bubble{
+    background:var(--neutral-soft);border-radius:10px;padding:8px 11px;font-size:12.8px;flex:1;min-width:0;
+  }
+  .msg .bubble .who{font-weight:600;font-size:12px;}
+  .msg .bubble .who .t{font-weight:400;color:var(--ink-faint);margin-left:6px;font-size:10.5px;}
+  .msg .av{width:26px;height:26px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;color:var(--surface);font-family:var(--font-head);}
+
+  .diagram{
+    border:1.5px dashed var(--border);border-radius:10px;padding:20px 14px;
+    display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;
+    background:var(--bg);
+  }
+  .dnode{
+    background:var(--surface);border:1px solid var(--border);border-radius:8px;
+    padding:8px 10px;font-size:11.5px;text-align:center;font-family:var(--font-mono);
+  }
+  .dnode.accent{border-color:var(--accent-soft-border);background:var(--accent-soft);color:var(--accent-ink);font-weight:600;}
+  .darrow{color:var(--ink-faint);font-size:14px;}
+
+  .approval-row{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    padding:11px 0;border-bottom:1px solid var(--border-soft);
+  }
+  .approval-row:last-child{border-bottom:none;}
+  .approval-row .info b{display:block;font-size:12.8px;}
+  .approval-row .info span{font-size:11.5px;color:var(--ink-faint);}
+  .approval-btns{display:flex;gap:6px;flex:none;}
+  .btn-sm{font-size:11.5px;padding:6px 10px;border-radius:7px;}
+  .btn-approve{background:var(--good);color:#fff;border:none;cursor:pointer;font-family:var(--font-head);font-weight:600;}
+  .btn-reject{background:transparent;color:var(--ink-muted);border:1px solid var(--border);cursor:pointer;font-family:var(--font-head);font-weight:600;}
+
+  footer.note{padding:16px 22px 28px;color:var(--ink-faint);font-size:11.5px;}
+  .kicker{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-faint);}
+
+  [hidden]{display:none!important;}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<div id="login-screen" class="login-wrap">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="wordmark"><div class="mark">F</div><div class="name">Fieldstack</div></div>
+      <span class="login-tag">GTM Surface Scaffold</span>
+      <p class="lede">One login per seat in the revenue org — SDR to Finance. Each account opens onto the actual workspace that role lives in day to day, not a shared CRM record.</p>
+      <div class="stage-strip">
+        <div class="row"><span class="dot"></span> Live account moving through the funnel: <b>Northfield Robotics</b> — Negotiation, closing Sep 26</div>
+        <div class="row"><span class="dot"></span> 10 seats, 3 revenue stages: Lead→Opportunity, Opportunity→Quote, Quote→Cash</div>
+      </div>
+    </div>
+    <div class="login-form-side">
+      <div>
+        <h2>Sign in to a seat</h2>
+        <p class="hint" style="margin-top:4px;">Pick an account on the right, or type a username directly.</p>
+      </div>
+      <form id="login-form" autocomplete="off">
+        <div class="field">
+          <label for="f-username">Username</label>
+          <input id="f-username" name="username" type="text" placeholder="e.g. ae" required>
+        </div>
+        <div class="field" style="margin-top:12px;">
+          <label for="f-password">Password</label>
+          <input id="f-password" name="password" type="password" placeholder="password" required>
+        </div>
+        <div class="error-msg" id="login-error">That username/password combination isn't a seat in Fieldstack. Every demo account uses the password shown below.</div>
+        <button class="btn" type="submit" style="margin-top:14px;width:100%;">Sign in →</button>
+      </form>
+      <p class="roster-pass">All 10 demo accounts use the password <code>password</code>.</p>
+    </div>
+    <div class="login-roster">
+      <h3>Demo accounts</h3>
+      <div class="roster-grid" id="roster-grid"></div>
+    </div>
+  </div>
+</div>
+
+<div id="app" class="app">
+  <div class="topbar">
+    <div class="whoami">
+      <div class="avatar" id="tb-avatar"></div>
+      <div class="who-text">
+        <div class="name" id="tb-name"></div>
+        <div class="title" id="tb-title"></div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="surface-chip" id="tb-surface"></span>
+      <button class="btn btn-ghost" id="logout-btn">Log out</button>
+    </div>
+  </div>
+  <div class="shell">
+    <nav class="rail">
+      <div class="rail-label">Workspace</div>
+      <div id="rail-nav"></div>
+    </nav>
+    <main class="content" id="main-content"></main>
+  </div>
+  <footer class="note">Fieldstack is a scaffold of sample GTM surfaces — all accounts, deals and messages are illustrative, not live data.</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- shared data ----------
+  var ACCOUNTS = {
+    northfield: {name:"Northfield Robotics", industry:"Industrial Robotics", arr:"$184,000", tier:"Tier 1 · Strategic", stage:"Negotiation", closeDate:"Sep 26, 2026", champion:"Dana Choi, VP Ops", buyer:"Felix Marsh, COO", owner:"Marcus Whitfield"},
+    bramblewood: {name:"Bramblewood Health", industry:"Healthcare Services", arr:"$76,500", tier:"Tier 2", stage:"Technical Validation", closeDate:"Oct 14, 2026", owner:"Marcus Whitfield"},
+    solstice: {name:"Solstice Freight", industry:"Logistics", arr:"$54,200", tier:"Tier 2", stage:"Discovery", closeDate:"Nov 3, 2026", owner:"Jordan Reyes"},
+    meridian: {name:"Meridian Wallcraft", industry:"Building Materials", arr:"$164,000", tier:"Existing customer", owner:"Amara Osei"}
+  };
+
+  // ---------- roles ----------
+  var ROLES = [
+    {id:"sdr", username:"sdr", name:"Jordan Reyes", title:"SDR / BDR", surface:"Sales Engagement Workspace", color:"#0F7A6E", render:renderSDR,
+      nav:[["Sequence Queue",iconList],["Intent Signals",iconBolt],["My Numbers",iconChart]]},
+    {id:"marketing", username:"marketing", name:"Priya Anand", title:"Demand Gen & Marketing Ops", surface:"Campaign & ABM Console", color:"#4C5FD5", render:renderMarketing,
+      nav:[["Campaign Performance",iconChart],["Account Tiering",iconLayers],["Lead Scoring",iconTarget]]},
+    {id:"ae", username:"ae", name:"Marcus Whitfield", title:"Account Executive", surface:"Deal Workspace (Slack + CRM overlay)", color:"#B4530E", render:renderAE,
+      nav:[["Deal Room",iconChat],["Scratchpad Overlay",iconList],["Mutual Action Plan",iconCheck]]},
+    {id:"revops", username:"revops", name:"Devon Okafor", title:"Revenue Operations", surface:"Routing & Data Ops Console", color:"#7C3AED", render:renderRevOps,
+      nav:[["Routing Rules",iconLayers],["SLA Monitor",iconBolt],["Data Waterfall",iconChart]]},
+    {id:"se", username:"se", name:"Lena Kowalski", title:"Solutions Engineer", surface:"Technical Workspace", color:"#0E7490", render:renderSE,
+      nav:[["Architecture Board",iconLayers],["POC Environments",iconList],["Security Review",iconCheck]]},
+    {id:"dealdesk", username:"dealdesk", name:"Sam Iverson", title:"Deal Desk", surface:"CPQ & Approvals Console", color:"#B91C4B", render:renderDealDesk,
+      nav:[["Quote Builder",iconList],["Approval Queue",iconCheck],["Order Validation",iconTarget]]},
+    {id:"legal", username:"legal", name:"Renee Castellanos", title:"Legal & Procurement", surface:"Contract Lifecycle Console", color:"#374151", render:renderLegal,
+      nav:[["Contract Tracker",iconList],["Signature Status",iconBolt],["Risk Flags",iconTarget]]},
+    {id:"salesleader", username:"salesleader", name:"Théo Bergman", title:"VP, Sales", surface:"Revenue Intelligence Dashboard", color:"#B45309", render:renderSalesLeader,
+      nav:[["Forecast",iconChart],["Deals at Risk",iconBolt],["Team Performance",iconLayers]]},
+    {id:"finance", username:"finance", name:"Grace Lindqvist", title:"Finance & Billing (AR)", surface:"Billing & Collections Console", color:"#166534", render:renderFinance,
+      nav:[["Invoices",iconList],["Usage & Subscriptions",iconChart],["Collections",iconTarget]]},
+    {id:"csm", username:"csm", name:"Amara Osei", title:"Customer Success", surface:"Customer Health Console", color:"#0369A1", render:renderCSM,
+      nav:[["Account Health",iconChart],["Onboarding Tasks",iconCheck],["QBR Schedule",iconList]]}
+  ];
+  var ROLE_BY_USER = {}; ROLES.forEach(function(r){ ROLE_BY_USER[r.username] = r; });
+
+  // ---------- tiny icon set (stroke, inherits currentColor) ----------
+  function icon(paths, extra){ return '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+paths+'</svg>'; }
+  function iconList(){ return icon('<line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/>'); }
+  function iconBolt(){ return icon('<polygon points="13 2 3 14 11 14 9 22 21 10 13 10 13 2"/>'); }
+  function iconChart(){ return icon('<line x1="4" y1="20" x2="20" y2="20"/><rect x="6" y="12" width="3" height="8"/><rect x="12" y="7" width="3" height="13"/><rect x="18" y="15" width="3" height="5"/>'); }
+  function iconLayers(){ return icon('<polygon points="12 2 2 8 12 14 22 8 12 2"/><polyline points="2 14 12 20 22 14"/>'); }
+  function iconTarget(){ return icon('<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.7" fill="currentColor"/>'); }
+  function iconChat(){ return icon('<path d="M4 5.5h16v10H8l-4 4z"/>'); }
+  function iconCheck(){ return icon('<polyline points="4 13 9 18 20 6"/>'); }
+
+  // ---------- render helpers ----------
+  function esc(s){ return String(s).replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); }
+  function initials(name){ var p = name.split(" "); return ((p[0]||"")[0]+(p[1]||"")[0]).toUpperCase(); }
+  function pill(text, tone){ return '<span class="pill pill-'+(tone||"neutral")+'">'+esc(text)+'</span>'; }
+  function card(opts){
+    return '<div class="card '+(opts.span?("span-"+opts.span):"")+'">'
+      + '<div class="card-head"><h2>'+esc(opts.title)+'</h2>'+(opts.meta?('<span class="meta">'+esc(opts.meta)+'</span>'):'')+'</div>'
+      + '<div class="card-body'+(opts.pad0?" pad-0":"")+'">'+opts.body+'</div></div>';
+  }
+  function tiles(items){
+    return '<div class="tiles">'+items.map(function(t){
+      return '<div class="tile"><div class="v mono" style="'+(t.tone?("color:var(--"+t.tone+")"):"")+'">'+esc(t.v)+'</div><div class="l">'+esc(t.l)+'</div></div>';
+    }).join("")+'</div>';
+  }
+  function table(cols, rows){
+    return '<div class="table-wrap"><table><thead><tr>'+cols.map(function(c){return '<th>'+esc(c)+'</th>';}).join("")+'</tr></thead>'
+      + '<tbody>'+rows.map(function(r){ return '<tr>'+r.map(function(cell){ return '<td>'+cell+'</td>'; }).join("")+'</tr>'; }).join("")+'</tbody></table></div>';
+  }
+  function bar(label, pct, valueLabel, tone){
+    return '<div class="bar-row"><div>'+esc(label)+'</div><div class="bar-track"><div class="bar-fill '+(tone||"")+'" style="width:'+pct+'%"></div></div><div class="val mono">'+esc(valueLabel)+'</div></div>';
+  }
+  function checklist(items){
+    return '<div class="checklist">'+items.map(function(it){
+      return '<div class="check-item '+(it.done?"done":"")+'"><div class="box">'+(it.done?"✓":"")+'</div><div class="txt"><div class="label">'+esc(it.label)+'</div>'+(it.meta?('<span class="meta">'+esc(it.meta)+'</span>'):'')+'</div></div>';
+    }).join("")+'</div>';
+  }
+  function thread(msgs){
+    return '<div class="thread">'+msgs.map(function(m){
+      return '<div class="msg"><div class="av" style="background:'+m.color+'">'+esc(initials(m.who))+'</div>'
+        + '<div class="bubble"><div class="who">'+esc(m.who)+'<span class="t">'+esc(m.time)+'</span></div>'+esc(m.text)+'</div></div>';
+    }).join("")+'</div>';
+  }
+
+  // ---------- role dashboards ----------
+  function renderSDR(){
+    var c1 = card({title:"Today's sequence queue", meta:"Outreach · Sequence: Robotics Ops — Cold Multi-touch", span:7, pad0:true, body:
+      table(["Time","Contact","Account","Step","Channel","Status"], [
+        ["9:00 AM","Dana Choi <span class='sub'>VP Ops</span>","Northfield Robotics","4 of 6","Call", '<button class="btn btn-sm" style="padding:5px 10px;">Call now</button>'],
+        ["9:30 AM","Felix Marsh <span class='sub'>COO</span>","Northfield Robotics","2 of 6","LinkedIn InMail", pill("Queued")],
+        ["10:15 AM","Priya Nair <span class='sub'>IT Director</span>","Bramblewood Health","1 of 5","Email", pill("Sent","good")],
+        ["11:00 AM","Omar Delgado <span class='sub'>RevOps Lead</span>","Solstice Freight","3 of 4","Call", pill("Missed — retry","warn")]
+      ])
+    });
+    var c2 = card({title:"🔥 Intent signal", meta:"via 6sense", span:5, body:
+      '<div style="font-size:13px;"><b>Northfield Robotics</b> visited <span class="mono">/pricing</span> 3× this week and downloaded the CPQ Buyer\'s Guide.</div>'
+      + '<div class="mono" style="font-size:26px;font-weight:600;color:var(--accent-ink);">92<span style="font-size:13px;color:var(--ink-faint);font-weight:400;"> / 100 intent score</span></div>'
+      + pill("Escalated to Marcus Whitfield (AE) · 2 days ago","accent")
+    });
+    var c3 = card({title:"This week", span:12, pad0:true, body: tiles([
+      {v:"34", l:"Calls connected"}, {v:"6", l:"Meetings booked"}, {v:"3", l:"Sequences active"}, {v:"18%", l:"Reply rate"}
+    ])});
+    return c1+c2+c3;
+  }
+
+  function renderMarketing(){
+    var c1 = card({title:"Campaign performance", meta:"Last 30 days", span:12, pad0:true, body:
+      table(["Campaign","Channel","Spend","Leads","MQLs","Conv. %"], [
+        ["Robotics Ops Summit — Retarget","LinkedIn Ads","$12,400","88","21","23.9%"],
+        ["Q3 Manufacturing Webinar","Email + Paid Social","$6,100","145","34","23.4%"],
+        ["ABM Tier‑1 Account Blitz","6sense + Display","$18,900","22","14","63.6%"]
+      ])
+    });
+    var c2 = card({title:"Account tiering (ABM)", span:7, pad0:true, body:
+      table(["Account","Tier","Intent","Stage","Owner"], [
+        ["Northfield Robotics", pill("Tier 1","accent"), "92","Negotiation","Marcus Whitfield"],
+        ["Bramblewood Health", pill("Tier 2"), "68","Technical Validation","Marcus Whitfield"],
+        ["Solstice Freight", pill("Tier 2"), "54","Discovery","Jordan Reyes"]
+      ])
+    });
+    var c3 = card({title:"Lead scoring model", meta:"Refreshed Sep 8, 2026", span:5, body:
+      bar("Firmographic fit","40","40%") + bar("Intent signal","35","35%") + bar("Engagement recency","25","25%")
+      + '<div class="hint" style="margin-top:2px;">Auto-routes to AE queue at score ≥ 75.</div>'
+    });
+    return c1+c2+c3;
+  }
+
+  function renderAE(){
+    var slackBody =
+      '<div class="overlay-note" style="margin-bottom:12px;"><b>Primary surface</b> Marcus coordinates the deal here — he opens Salesforce itself only a few times a week.</div>'
+      + '<div class="slackapp">'
+      + '<div class="slack-side">'
+      + '<div class="ws-name">💬 Fieldstack Connect</div>'
+      + '<div class="sec">Deal rooms</div>'
+      + '<div class="slack-chan active"><span class="hash">#</span>deal-northfield-robotics</div>'
+      + '<div class="slack-chan"><span class="hash">#</span>deal-bramblewood-health</div>'
+      + '<div class="slack-chan"><span class="hash">#</span>deal-solstice-freight</div>'
+      + '<div class="sec">Direct messages</div>'
+      + '<div class="slack-chan"><span class="status-dot"></span>Dana Choi · Northfield</div>'
+      + '<div class="slack-chan"><span class="status-dot" style="background:#7D8299;"></span>Sam Iverson · Deal Desk</div>'
+      + '</div>'
+      + '<div class="slack-main">'
+      + '<div class="slack-chan-head"># deal-northfield-robotics <span class="members">👥 Marcus, Renee, Sam, Lena + 2 from Northfield</span></div>'
+      + '<div class="slack-thread">' + thread([
+          {who:"Marcus Whitfield", time:"9:14 AM", color:"#B4530E", text:"Legal flagged the liability cap in section 8 — Renee, can we get a redline turnaround by Thursday?"},
+          {who:"Renee Castellanos", time:"9:22 AM", color:"#374151", text:"On it — sending the revised MSA back to their counsel today."},
+          {who:"Sam Iverson", time:"10:03 AM", color:"#B91C4B", text:"12% aggregate discount approved at VP level, synced to the quote."},
+          {who:"Lena Kowalski", time:"10:41 AM", color:"#0E7490", text:"POC environment renewed through Sep 30, so we're covered for the taste test."},
+          {who:"Dana Choi", time:"11:52 AM", color:"#8A93A1", text:"Confirmed budget with Felix this morning — just need the redline back to move to signature."}
+        ]) + '</div>'
+      + '<div class="slack-compose">Message #deal-northfield-robotics <span class="send">Send</span></div>'
+      + '</div></div>';
+    var c1 = card({title:"Deal room — Northfield Robotics", meta:"Lives in Slack Connect, not the CRM", span:12, body: slackBody});
+
+    var c2 = card({title:"Scratchpad overlay", meta:"⚡ writes back to Salesforce automatically", span:7, pad0:true, body:
+      table(["Account","Stage","Amount","Close date","Gaps"], [
+        ["Northfield Robotics","Negotiation","$184,000","Sep 26, 2026", pill("Champion confirmed","good")],
+        ["Bramblewood Health","Tech. Validation","$76,500","Oct 14, 2026", pill("Buyer TBD","warn")],
+        ["Solstice Freight","Discovery","$54,200","Nov 3, 2026", pill("Metrics TBD","warn")]
+      ])
+    });
+    var c3 = card({title:"Mutual action plan — Northfield Robotics", span:5, body:
+      checklist([
+        {label:"Technical validation complete", done:true, meta:"Sep 2"},
+        {label:"Security review passed", done:true, meta:"Sep 9"},
+        {label:"Champion (Dana Choi) confirms budget", done:true, meta:"Sep 11"},
+        {label:"Legal redline turnaround", done:false, meta:"Due Sep 18"},
+        {label:"Signature", done:false, meta:"Target Sep 24"}
+      ])
+    });
+    return c1+c2+c3;
+  }
+
+  function renderRevOps(){
+    var c1 = card({title:"Lead routing rules", span:12, pad0:true, body:
+      table(["Rule","Criteria","Destination","Status"], [
+        ["Tier‑1 ABM fast lane","Intent ≥ 85 and ARR fit ≥ $100k","Senior AE, within 5 min", pill("Active","good")],
+        ["Standard round robin","All other MQLs","Round robin, SDR pods 1–4", pill("Active","good")],
+        ["Re-engagement","No response after 21 days","Nurture sequence", pill("Active","good")]
+      ])
+    });
+    var c2 = card({title:"SLA monitor — time to first touch", meta:"Target: 10 min", span:7, body:
+      bar("SDR Pod 1","20","4 min","good") + bar("SDR Pod 2","30","6 min","good") + bar("SDR Pod 3","70","22 min","warn") + bar("SDR Pod 4","100","41 min","crit")
+    });
+    var c3 = card({title:"Data enrichment waterfall", span:5, body:
+      checklist([
+        {label:"Clearbit firmographic match", done:true, meta:"94% match rate"},
+        {label:"Clay contact-level enrichment", done:true, meta:"87% match rate"},
+        {label:"Snowflake → Salesforce nightly sync", done:true, meta:"Runs 2:00 AM PT"},
+        {label:"Duplicate merge review", done:false, meta:"3.1% duplicate rate this week"}
+      ])
+    });
+    return c1+c2+c3;
+  }
+
+  function renderSE(){
+    var c1 = card({title:"Architecture board — Northfield Robotics", meta:"Edited by Lena Kowalski · Sep 12", span:12, body:
+      '<div class="diagram">'
+      + '<div class="dnode">Northfield WMS</div><div class="darrow">→</div>'
+      + '<div class="dnode">API gateway</div><div class="darrow">→</div>'
+      + '<div class="dnode accent">Fieldstack agent layer</div><div class="darrow">→</div>'
+      + '<div class="dnode">CRM / CPQ / Billing</div>'
+      + '</div>'
+      + '<div class="hint" style="margin-top:8px;">3 open comments · full board lives in the shared canvas tool</div>'
+    });
+    var c2 = card({title:"POC environments", span:7, pad0:true, body:
+      table(["Account","Environment","Status","Expires"], [
+        ["Northfield Robotics","prod-mirror-us-west", pill("Active","good"), "Sep 30, 2026"],
+        ["Bramblewood Health","sandbox-healthcare-01", pill("Provisioning","warn"), "—"],
+        ["Solstice Freight","trial-standard", pill("Expired","crit"), "Sep 1, 2026"]
+      ])
+    });
+    var c3 = card({title:"Security review — Northfield Robotics", span:5, body:
+      checklist([
+        {label:"SOC 2 Type II shared", done:true},
+        {label:"Data residency questionnaire", done:true},
+        {label:"Pen test summary requested", done:false, meta:"Due Sep 19"},
+        {label:"SSO / SCIM config validated", done:true}
+      ])
+    });
+    return c1+c2+c3;
+  }
+
+  function renderDealDesk(){
+    var c1 = card({title:"Quote builder — Northfield Robotics", meta:"Quote v3", span:12, pad0:true, body:
+      table(["Line item","Qty","List price","Discount","Net"], [
+        ["Platform License (Enterprise)","1","$150,000","8%","$138,000"],
+        ["CPQ Agent Add-on","1","$30,000","10%","$27,000"],
+        ["Implementation Services","1","$19,000","0%","$19,000"],
+        ["<b>Total</b>","","","", "<b class='mono'>$184,000</b>"]
+      ])
+    });
+    var c2 = card({title:"Approval queue", span:7, body:
+      '<div class="approval-row"><div class="info"><b>Northfield Robotics</b><span>12% aggregate discount · submitted by Marcus Whitfield</span></div>'
+      + '<div class="approval-btns">'+pill("Awaiting VP approval","warn")+'</div></div>'
+      + '<div class="approval-row"><div class="info"><b>Bramblewood Health</b><span>Non-standard payment terms — Net 60</span></div>'
+      + '<div class="approval-btns">'+pill("Approved","good")+'</div></div>'
+    });
+    var c3 = card({title:"Order validation", span:5, pad0:true, body:
+      table(["Account","PO number","Quote match","Status"], [
+        ["Northfield Robotics","pending","—","Awaiting signature"],
+        ["Solstice Freight","PO-88213","Matches v3", pill("Ready to book","good")]
+      ])
+    });
+    return c1+c2+c3;
+  }
+
+  function renderLegal(){
+    var c1 = card({title:"Contract tracker", span:12, pad0:true, body:
+      table(["Account","Document","Version","Status"], [
+        ["Northfield Robotics","MSA","v4 (redline)", pill("In legal review","warn")],
+        ["Northfield Robotics","DPA","v1", pill("Countersigned","good")],
+        ["Bramblewood Health","NDA","v1", pill("Executed","good")],
+        ["Solstice Freight","MSA","v1", pill("Drafting","neutral")]
+      ])
+    });
+    var c2 = card({title:"Signature status", span:6, body:
+      bar("Northfield MSA","67","2 of 3","warn") + bar("Bramblewood NDA","100","2 of 2","good")
+    });
+    var c3 = card({title:"Risk flags — Northfield Robotics", span:6, body:
+      checklist([
+        {label:"Liability cap below standard floor", done:false, meta:"Flagged to AE Sep 15"},
+        {label:"Data residency clause — EU carve-out review", done:false},
+        {label:"Standard indemnification language", done:true, meta:"Accepted as-is"}
+      ])
+    });
+    return c1+c2+c3;
+  }
+
+  function renderSalesLeader(){
+    var c1 = card({title:"Q3 forecast", meta:"Quota: $1.6M", span:12, pad0:true, body:
+      tiles([{v:"$1.42M", l:"Commit"},{v:"$1.89M", l:"Best case"},{v:"$3.10M", l:"Open pipeline"},{v:"89%", l:"Commit attainment", tone:"warn"}])
+    });
+    var c2 = card({title:"Deals at risk", span:7, pad0:true, body:
+      table(["Account","Amount","Stage","Risk","Reason"], [
+        ["Northfield Robotics","$184,000","Negotiation", pill("Slip risk","warn"), "Legal redline pending, 11 days to close"],
+        ["Solstice Freight","$54,200","Discovery", pill("Stalled","crit"), "No activity in 9 days"]
+      ])
+    });
+    var c3 = card({title:"Team performance", meta:"QTD", span:5, pad0:true, body:
+      table(["Rep","Pipeline","Closed-won","Attain."], [
+        ["Ana Torres","$402,000","$140,000", pill("87.5%","good")],
+        ["Marcus Whitfield","$314,700","$96,000", pill("60%","warn")],
+        ["Jamal Whitcombe","$210,500","$58,000", pill("36%","crit")]
+      ])
+    });
+    return c1+c2+c3;
+  }
+
+  function renderFinance(){
+    var c1 = card({title:"Invoices", span:12, pad0:true, body:
+      table(["Customer","Invoice #","Amount","Due","Status"], [
+        ["Bramblewood Health","INV-10432","$19,125","Sep 20, 2026", pill("Due soon","warn")],
+        ["Solstice Freight","INV-10401","$13,550","Aug 30, 2026", pill("Overdue 16 days","crit")],
+        ["Meridian Wallcraft","INV-10398","$41,000","Sep 5, 2026", pill("Paid","good")]
+      ])
+    });
+    var c2 = card({title:"Usage & subscription metering", span:7, body:
+      bar("Bramblewood — API calls","84","842K / 1M") + bar("Meridian Wallcraft — seats","94","47 / 50 seats","warn")
+      + '<div class="hint">Northfield Robotics meters activate on signature.</div>'
+    });
+    var c3 = card({title:"Collections queue", span:5, body:
+      checklist([
+        {label:"Solstice Freight — 2nd reminder sent", done:true, meta:"Sep 10 · escalation to AE Sep 17"},
+        {label:"Meridian Wallcraft", done:true, meta:"Current, no action needed"}
+      ])
+    });
+    return c1+c2+c3;
+  }
+
+  function renderCSM(){
+    var c1 = card({title:"Account health", span:12, pad0:true, body:
+      table(["Account","Health score","Renewal","Adoption"], [
+        ["Meridian Wallcraft", pill("88 · Healthy","good"), "Jan 15, 2027","91%"],
+        ["Bramblewood Health", pill("Pending onboarding","neutral"), "Oct 14, 2026 (proj. close)","—"]
+      ])
+    });
+    var c2 = card({title:"Onboarding prep — Bramblewood Health", meta:"Deal not yet closed", span:7, body:
+      checklist([
+        {label:"Kickoff call template ready", done:true},
+        {label:"Implementation resourcing requested", done:true},
+        {label:"Success plan draft", done:false, meta:"In progress"}
+      ])
+    });
+    var c3 = card({title:"QBR schedule", span:5, pad0:true, body:
+      table(["Account","Next QBR","Owner"], [["Meridian Wallcraft","Sep 24, 2026","Amara Osei"]])
+    });
+    return c1+c2+c3;
+  }
+
+  // ---------- app wiring ----------
+  var STORAGE_KEY = "fieldstack_session";
+  var activeNav = 0;
+
+  function buildRoster(){
+    var grid = document.getElementById("roster-grid");
+    grid.innerHTML = ROLES.map(function(r){
+      return '<button type="button" class="role-chip" data-username="'+r.username+'">'
+        + '<span class="dot" style="background:'+r.color+'"></span>'
+        + '<span style="flex:1;min-width:0;"><div style="font-weight:600;color:var(--ink);">'+esc(r.title)+'</div></span>'
+        + '<span class="u">'+esc(r.username)+'</span></button>';
+    }).join("");
+    grid.querySelectorAll(".role-chip").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        document.getElementById("f-username").value = btn.getAttribute("data-username");
+        document.getElementById("f-password").value = "password";
+        document.getElementById("f-username").focus();
+      });
+    });
+  }
+
+  function login(username, password){
+    var role = ROLE_BY_USER[username.trim().toLowerCase()];
+    if(!role || password !== "password"){ return false; }
+    try{ localStorage.setItem(STORAGE_KEY, role.id); }catch(e){}
+    showApp(role);
+    return true;
+  }
+
+  function logout(){
+    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+    document.getElementById("app").classList.remove("show");
+    document.getElementById("login-screen").style.display = "flex";
+    document.getElementById("login-form").reset();
+    document.getElementById("login-error").classList.remove("show");
+  }
+
+  function showApp(role){
+    activeNav = 0;
+    document.getElementById("login-screen").style.display = "none";
+    var app = document.getElementById("app");
+    app.classList.add("show");
+
+    document.getElementById("tb-avatar").style.background = role.color;
+    document.getElementById("tb-avatar").textContent = initials(role.name);
+    document.getElementById("tb-name").textContent = role.name;
+    document.getElementById("tb-title").textContent = role.title + " · @" + role.username;
+    document.getElementById("tb-surface").textContent = role.surface;
+
+    var rail = document.getElementById("rail-nav");
+    rail.innerHTML = role.nav.map(function(n, i){
+      return '<button type="button" class="nav-item '+(i===0?"active":"")+'" data-i="'+i+'">'+n[1]()+'<span>'+esc(n[0])+'</span></button>';
+    }).join("");
+    rail.querySelectorAll(".nav-item").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        rail.querySelectorAll(".nav-item").forEach(function(b){ b.classList.remove("active"); });
+        btn.classList.add("active");
+      });
+    });
+
+    var head = '<div class="content-head"><div><h1>'+esc(role.title)+'</h1><div class="sub kicker">'+esc(role.surface)+'</div></div></div>';
+    document.getElementById("main-content").innerHTML = head + '<div class="grid">' + role.render() + '</div>';
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    buildRoster();
+
+    document.getElementById("login-form").addEventListener("submit", function(e){
+      e.preventDefault();
+      var u = document.getElementById("f-username").value;
+      var p = document.getElementById("f-password").value;
+      if(!login(u, p)){
+        document.getElementById("login-error").classList.add("show");
+      }
+    });
+    document.getElementById("logout-btn").addEventListener("click", logout);
+
+    var savedId = null;
+    try{ savedId = localStorage.getItem(STORAGE_KEY); }catch(e){}
+    var savedRole = null;
+    ROLES.forEach(function(r){ if(r.id === savedId){ savedRole = r; } });
+    if(savedRole){ showApp(savedRole); }
+  });
+})();
+</script>
+
+</html>
