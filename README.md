@@ -59,6 +59,10 @@ A built snapshot, `data-model/rubrik_gtm_synthetic_v5.db` (~92 MB, catalog inclu
 
 Ten rehearsal cases for the 105-minute case round, each grounded in the synthetic database. Every case folder has an `AGENT.md` (a thin agent definition that runs in Claude Cowork), a `SKILL.md` (the know-how it invokes: phase runbook, verified SQL, output schema, guardrails, eval rubric) and a `SPEC.md` (the product spec behind the agent). `case-kit/_shared/DATA-MAP.md` maps the schema to the Rubrik stack and lists 20 verified data traps; `case-kit/_shared/gtm_query.py` is a stdlib-only, read-only SQL runner. Start with `case-kit/README.md` — §1a routes a problem statement to a case, §4 is the 30-minute build flow.
 
+## `pipeline-command/`
+
+A login-gated, single-file pipeline dashboard with two seats built on the same synthetic database: **VP of Sales** (`vp` / `vp-rubrik` — forecast roll-up by territory, pipeline by stage / segment / LOB / channel, hygiene flags, AE leaderboard, partner channel, renewal lanes, competitive and top-of-funnel) and **Account Executive** (`ae` / `ae-rubrik` — one AE's quarter, deal table with an expandable full brief, alerts, whitespace, renewals, activity). Open `pipeline-command/index.html` directly or via GitHub Pages; `build_dash_data.py` regenerates the embedded data snapshot. See `pipeline-command/README.md`.
+
 ## Status
 
 Both pieces are prep scaffolding for an upcoming case interview, not a production build. Sample data throughout (Northfield Robotics, Bramblewood Health, Solstice Freight, and the synthetic GTM database) is fictional.
