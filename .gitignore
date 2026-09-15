@@ -1,5 +1,7 @@
 # Generated synthetic database (regenerate with data-model/build_rubrik_gtm_db_v5.py)
 *.db
+# ...except the committed v5 snapshot used by case-kit/
+!data-model/rubrik_gtm_synthetic_v5.db
 *.db-journal
 *.db-wal
 *.db-shm

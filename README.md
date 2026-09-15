@@ -42,7 +42,22 @@ cd data-model
 python3 build_rubrik_gtm_db_v5.py
 ```
 
-This produces `rubrik_gtm_synthetic_v5.db` (git-ignored — regenerate it locally rather than committing it) along with a console summary of row counts and file size at each build stage (raw data, after FTS5 rebuild, after indexing, after `VACUUM`).
+This produces `rubrik_gtm_synthetic_v5.db` along with a console summary of row counts and file size at each build stage (raw data, after FTS5 rebuild, after indexing, after `VACUUM`).
+
+## `data-model/build_semantic_catalog_v5.py`
+
+Adds a searchable semantic layer on top of the generated database (run it after the builder): `semantic_catalog_tables`, `semantic_catalog_columns`, `semantic_catalog_relationships` (with ready-made JOIN clauses) and an FTS5 index `semantic_catalog_fts`, so an agent can look up "which table/column answers this question" before writing SQL instead of re-deriving the schema every turn.
+
+```bash
+cd data-model
+python3 build_semantic_catalog_v5.py rubrik_gtm_synthetic_v5.db
+```
+
+A built snapshot, `data-model/rubrik_gtm_synthetic_v5.db` (~92 MB, catalog included), is committed so `case-kit/` runs without a rebuild.
+
+## `case-kit/`
+
+Ten rehearsal cases for the 105-minute case round, each grounded in the synthetic database. Every case folder has an `AGENT.md` (a thin agent definition that runs in Claude Cowork), a `SKILL.md` (the know-how it invokes: phase runbook, verified SQL, output schema, guardrails, eval rubric) and a `SPEC.md` (the product spec behind the agent). `case-kit/_shared/DATA-MAP.md` maps the schema to the Rubrik stack and lists 20 verified data traps; `case-kit/_shared/gtm_query.py` is a stdlib-only, read-only SQL runner. Start with `case-kit/README.md` — §1a routes a problem statement to a case, §4 is the 30-minute build flow.
 
 ## Status
 
